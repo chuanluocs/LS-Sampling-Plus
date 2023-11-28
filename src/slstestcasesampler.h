@@ -1,9 +1,16 @@
 #include "../include/cadical.hpp"
+#include "../minisat_ext/Ext.h"
 #include "pboccsatsolver.h"
 #include <bits/stdc++.h>
 
+#include <iostream>
+#include <fstream>
+#include <pthread.h>
+
 using std::vector;
 using std::pair;
+
+using std::ifstream;
 
 class SimpleBitSet {
 public:
@@ -141,8 +148,12 @@ public:
     inline void SetTestcaseSetSavePath(std::string testcase_set_path) { testcase_set_save_path_ = testcase_set_path; }
 
     inline void FixOptimize(int t){ flag_fix_t_wise_optimize_ = true; t_wise_optimize_ = t; }
+    inline void NotUseASF(){ flag_fix_t_wise_optimize_ = false; }  //3wise no asf
     inline void SetTupleSampleCount(int t){ sample_cnt_ = t; }
-    
+
+    inline void SetParallelNum(int p){ parallel_num = p; } //update
+    inline void SetNotUseCDCL(){ use_cdcl = false; } //udpate
+
     void GenerateInitTestcase();
     void GenerateTestcase();
     std::vector<int> GetSatTestcaseWithGivenInitSolution(const std::vector<int>& init_solution);
@@ -152,10 +163,16 @@ public:
     int SelectTestcaseFromCandidateSetByTupleNum();
     int GetHammingDistance(const std::vector<int>& vec_1, const std::vector<int>& vec_2);
 
+    long long Get1TupleMapIndex(long i, long v_i);
     long long Get2TupleMapIndex(long i, long v_i, long j, long v_j);
+    long long Get3TupleMapIndex(long i, long v_i, long j, long v_j, long k, long v_k); //3wise_no_ASF
 
+    void Init1TupleInfo();    //1wise
+    void Update1TupleInfo();  //1wise
     void Init2TupleInfo();
     void Update2TupleInfo();
+    void Init3TupleInfo();  //3wise no asf
+    void Update3TupleInfo();  //3wise no asf
 
     void UpdateXTupleInfo();
 
@@ -225,6 +242,12 @@ private:
     long long num_tuple_all_exact_;
     double coverage_tuple_;
 
+    int parallel_num; //update
+    bool stage_cha; // update
+    bool use_cdcl; //update
+    int num_clauses_; //update
+    vector<vector<int> > clauses; //update
+
     std::vector<std::vector<int>> testcase_set_;
     std::vector<std::vector<int>> candidate_testcase_set_;
     std::vector<std::vector<int>> candidate_sample_init_solution_set_;
@@ -251,7 +274,9 @@ private:
     vector<pair<vector<int>, SimpleBitSet> > pq;
     vector<int> pq_idx;
     SimpleBitSet already_t_wise;
+    SimpleBitSet get_gain_1_wise(const vector<int>& asgn);  //1wise
     SimpleBitSet get_gain_2_wise(const vector<int>& asgn);
+    SimpleBitSet get_gain_3_wise(const vector<int>& asgn);  //3wise no asf
     void clear_pq();
 
     std::string get_random_prefix();
@@ -269,6 +294,14 @@ private:
     SimpleBitSet (SLSTestcaseSampler::*p_get_gain)(const vector<int>& asgn);
 
     CaDiCaL::Solver *tuple_solver;
+    ExtMinisat::SamplingSolver *cdcl_sampler; //update
+    vector<ExtMinisat::SamplingSolver *> cdcl_sampler_list; // update
+    static void *pthread_func3(void *arg);
+    static void *pthread_func4(void *arg);
+    int SelectTestcaseFromCandidateSetByTupleNum2();
+
+    bool read_cnf(); //update
+    void read_cnf_header(ifstream& ifs, int& nvar, int& nclauses); //update
 
     void stage_change(int cur_phase);
 };

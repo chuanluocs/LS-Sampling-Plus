@@ -41,6 +41,9 @@ struct Argument
 	int t_wise_optimize;
 	int sample_cnt;
 
+	int parallel_num;
+	bool not_use_cdcl;
+
 	bool flag_input_cnf_path;
 	bool flag_reduced_cnf_file_path;
 	bool flag_output_testcase_path;
@@ -53,6 +56,9 @@ struct Argument
 
 	bool flag_fix_t_wise_optimize;
 	bool flag_set_sample_cnt;
+	bool flag_set_parallel_num;
+	bool flag_not_use_cdcl;
+	bool flag_not_use_asf;
 };
 
 bool ParseArgument(int argc, char **argv, Argument &argu)
@@ -69,6 +75,10 @@ bool ParseArgument(int argc, char **argv, Argument &argu)
 	argu.flag_use_cnf_reduction = false;
 	argu.flag_fix_t_wise_optimize = false;
 	argu.flag_set_sample_cnt = false;
+
+	argu.flag_set_parallel_num = false;
+	argu.flag_not_use_cdcl = false;
+	argu.flag_not_use_asf = false;
 
 	argu.is_cal_coverage = 0;
 
@@ -167,6 +177,24 @@ bool ParseArgument(int argc, char **argv, Argument &argu)
 			argu.flag_set_sample_cnt = true;
 			continue;
 		}
+		else if(strcmp(argv[i], "-p") == 0)
+		{
+			i++;
+			if(i>=argc) return false;
+			sscanf(argv[i], "%d", &argu.parallel_num);
+			argu.flag_set_parallel_num = true;
+			continue;
+		}
+		else if(strcmp(argv[i], "-not_use_cdcl") == 0)
+		{
+			argu.flag_not_use_cdcl = true;
+			continue;
+		}
+		else if(strcmp(argv[i], "-not_use_asf") == 0)
+		{
+			argu.flag_not_use_asf = true;
+			continue;
+		}
 		else if(strcmp(argv[i], "-no_coverage") == 0)
 		{
 			argu.is_cal_coverage = 0;
@@ -182,7 +210,7 @@ bool ParseArgument(int argc, char **argv, Argument &argu)
     string cnf_file_name = argu.input_cnf_path.substr(pos + 1);
 	cnf_file_name.replace(cnf_file_name.find(".cnf"), 4, "");
 
-	if(argu.flag_input_cnf_path && (!argu.flag_fix_t_wise_optimize || argu.t_wise_optimize >= 2)) return true;
+	if(argu.flag_input_cnf_path && (!argu.flag_fix_t_wise_optimize || argu.t_wise_optimize >= 1)) return true;
 	else return false;
 }
 
@@ -220,6 +248,15 @@ int main(int argc, char **argv)
 		sls_sampler.FixOptimize(argu.t_wise_optimize);
 	if (argu.flag_set_sample_cnt)
 		sls_sampler.SetTupleSampleCount(argu.sample_cnt);
+	if (argu.flag_set_parallel_num)
+		sls_sampler.SetParallelNum(argu.parallel_num);
+	if (argu.flag_not_use_cdcl)
+		sls_sampler.SetNotUseCDCL();
+	if (argu.flag_not_use_asf)
+		sls_sampler.NotUseASF();
+	if (!argu.flag_fix_t_wise_optimize && !argu.flag_not_use_asf)
+		sls_sampler.FixOptimize(2);
+
 
 	sls_sampler.GenerateTestCaseSet();
 
