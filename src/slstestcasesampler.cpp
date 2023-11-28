@@ -767,6 +767,9 @@ void SLSTestcaseSampler::GenerateTestCaseSet()
     tuple_solver = new CaDiCaL::Solver;
     tuple_solver->read_dimacs(cnf_file_path_.c_str(), num_var_);
 
+    if ((t_wise_optimize_ == 2 && num_combination_all_possible_ <= sample_cnt_)||(t_wise_optimize_ == 2 && !flag_fix_t_wise_optimize_))
+        parallel_num = 2;
+
     //update begin
 
     read_cnf();
@@ -794,8 +797,9 @@ void SLSTestcaseSampler::GenerateTestCaseSet()
             cout << "c current time: " << cpu_time_pre << endl;
         }
     } else {
-        if (t_wise_optimize_ == 2)
+        if (t_wise_optimize_ == 2){
             cur_phase = 2;
+        }
         else if (t_wise_optimize_ == 3 || t_wise_optimize_ == 1);
         else {
             cout << "Not use ASF twise error!" << endl;
