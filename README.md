@@ -98,4 +98,4 @@ Here, again, the lines in the form of `number1: number2` represent the progress 
 
 ## Testing Benchmarks for Evaluating *LS-Sampling-Plus*
 
-- The directories entitled `cnf_benchmarks/`, 'cnfForRQ7' and 'cnfForRQ8' includes all testing benchmarks.
+- The directories entitled `cnf_benchmarks/`, `cnfForRQ7` and `cnfForRQ8` include all testing benchmarks.
