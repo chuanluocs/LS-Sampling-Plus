@@ -1,6 +1,6 @@
-# *LS-Sampling-Plus*: An Effective Systematic Search Based Sampling Approach for Achieving High t-wise Coverage
+# *LS-Sampling-Plus*: An Effective Local Search Based Sampling Approach for Achieving High t-wise Coverage
 
-*LS-Sampling-Plus* is an effective systematic search based sampling approach for solving the t-wise coverage maximum (t-wise CovMax) problem. This repository includes the implementation of *LS-Sampling-Plus* and testing benchmarks. We note that *LS-Sampling-Plus* should be run on an operating system of `GNU/Linux (64-bit)`.
+*LS-Sampling-Plus* is an effective Local search based sampling approach for solving the t-wise coverage maximum (t-wise CovMax) problem. This repository includes the implementation of *LS-Sampling-Plus* and testing benchmarks. We note that *LS-Sampling-Plus* should be run on an operating system of `GNU/Linux (64-bit)`.
 
 ## Developers
 - Chuan Luo (<chuanluophd@outlook.com>)
