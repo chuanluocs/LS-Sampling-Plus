@@ -153,6 +153,7 @@ public:
 
     inline void SetParallelNum(int p){ parallel_num = p; } //update
     inline void SetNotUseCDCL(){ use_cdcl = false; } //udpate
+    inline void SetUseSat4j(){ use_sat4j = true; } //udpate
 
     void GenerateInitTestcase();
     void GenerateTestcase();
@@ -245,6 +246,7 @@ private:
     int parallel_num; //update
     bool stage_cha; // update
     bool use_cdcl; //update
+    bool use_sat4j; //update
     int num_clauses_; //update
     vector<vector<int> > clauses; //update
 

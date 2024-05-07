@@ -57,6 +57,7 @@ void SLSTestcaseSampler::SetDefaultPara()
     parallel_num = 1;
     use_cdcl = true;
     stage_cha = false;
+    use_sat4j = false;
 }
 
 void SLSTestcaseSampler::SetTestcaseSetSize(int testcase_set_size)
@@ -500,16 +501,42 @@ void SLSTestcaseSampler::GenerateCandidateTestcaseSet()
         }
     }
     //
-
-    for (int i = 0; i < candidate_set_size_; i++)
-    {
-        if(use_cdcl){
-            cdcl_sampler->set_prob(res);
-            cdcl_sampler->get_solution(candidate_testcase_set_[i]);
+    if (use_sat4j){
+        cdcl_sampler->set_prob2(cnf_file_path_,res,candidate_set_size_*seed_,candidate_set_size_);
+        int pos = reduced_cnf_file_path_.find_last_of('/');
+        string cnf_instance_name_ = reduced_cnf_file_path_.substr(pos + 1);
+        string s;
+        string line;
+        ifstream inf;
+        inf.open(cnf_instance_name_+"/Products."+to_string(candidate_set_size_*seed_));
+        for(int j = 0; j < candidate_set_size_; j++){
+            getline(inf,line);
+            stringstream ss(line);
+            candidate_testcase_set_[j].clear();
+            for(int i = 0; i < num_var_; i++){
+                getline(ss,s,';');
+                if(atoi(s.c_str())>0) candidate_testcase_set_[j].emplace_back(1);
+                else if(atoi(s.c_str())<0) candidate_testcase_set_[j].emplace_back(0);
+                else{
+                    candidate_testcase_set_[j].emplace_back(-1);
+                    cout << "error" << endl;
+                }
+            }
         }
-        else{
-            candidate_sample_init_solution_set_[i] = GetWeightedSampleInitSolution();
-            candidate_testcase_set_[i] = GetSatTestcaseWithGivenInitSolution(candidate_sample_init_solution_set_[i]);
+        inf.close();
+        // cdcl_sampler->get_solution2(reduced_cnf_file_path_,candidate_testcase_set_,candidate_set_size_*seed_,candidate_set_size_);
+    }
+    else{
+        for (int i = 0; i < candidate_set_size_; i++)
+        {
+            if(use_cdcl){
+                cdcl_sampler->set_prob(res);
+                cdcl_sampler->get_solution(candidate_testcase_set_[i]);
+            }
+            else{
+                candidate_sample_init_solution_set_[i] = GetWeightedSampleInitSolution();
+                candidate_testcase_set_[i] = GetSatTestcaseWithGivenInitSolution(candidate_sample_init_solution_set_[i]);
+            }
         }
     }
 }
@@ -767,9 +794,6 @@ void SLSTestcaseSampler::GenerateTestCaseSet()
     tuple_solver = new CaDiCaL::Solver;
     tuple_solver->read_dimacs(cnf_file_path_.c_str(), num_var_);
 
-    if ((t_wise_optimize_ == 2 && num_combination_all_possible_ <= sample_cnt_)||(t_wise_optimize_ == 2 && !flag_fix_t_wise_optimize_))
-        parallel_num = 2;
-
     //update begin
 
     read_cnf();
@@ -797,9 +821,8 @@ void SLSTestcaseSampler::GenerateTestCaseSet()
             cout << "c current time: " << cpu_time_pre << endl;
         }
     } else {
-        if (t_wise_optimize_ == 2){
+        if (t_wise_optimize_ == 2)
             cur_phase = 2;
-        }
         else if (t_wise_optimize_ == 3 || t_wise_optimize_ == 1);
         else {
             cout << "Not use ASF twise error!" << endl;
@@ -1049,6 +1072,14 @@ void SLSTestcaseSampler::remove_temp_files(){
     int ret;
     if (flag_use_cnf_reduction_ && flag_reduced_cnf_as_temp_){
         cmd = "rm " + reduced_cnf_file_path_;
+        ret = system(cmd.c_str());
+    }
+    if (use_sat4j){
+        int pos = reduced_cnf_file_path_.find_last_of('/');
+        string sat4jproduct = reduced_cnf_file_path_.substr(pos + 1);
+        cmd = "rm -r " + sat4jproduct;
+        ret = system(cmd.c_str());
+        cmd = "rm sat4j/" + sat4jproduct + ".txt";
         ret = system(cmd.c_str());
     }
 }

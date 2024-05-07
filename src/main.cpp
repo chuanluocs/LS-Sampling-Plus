@@ -59,6 +59,7 @@ struct Argument
 	bool flag_set_parallel_num;
 	bool flag_not_use_cdcl;
 	bool flag_not_use_asf;
+	bool flag_use_sat4j;
 };
 
 bool ParseArgument(int argc, char **argv, Argument &argu)
@@ -79,6 +80,7 @@ bool ParseArgument(int argc, char **argv, Argument &argu)
 	argu.flag_set_parallel_num = false;
 	argu.flag_not_use_cdcl = false;
 	argu.flag_not_use_asf = false;
+	argu.flag_use_sat4j = false;
 
 	argu.is_cal_coverage = 0;
 
@@ -190,6 +192,11 @@ bool ParseArgument(int argc, char **argv, Argument &argu)
 			argu.flag_not_use_cdcl = true;
 			continue;
 		}
+		else if(strcmp(argv[i], "-use_sat4j") == 0)
+		{
+			argu.flag_use_sat4j = true;
+			continue;
+		}
 		else if(strcmp(argv[i], "-not_use_asf") == 0)
 		{
 			argu.flag_not_use_asf = true;
@@ -254,8 +261,8 @@ int main(int argc, char **argv)
 		sls_sampler.SetNotUseCDCL();
 	if (argu.flag_not_use_asf)
 		sls_sampler.NotUseASF();
-	if (!argu.flag_fix_t_wise_optimize && !argu.flag_not_use_asf)
-		sls_sampler.FixOptimize(2);
+	if (argu.flag_use_sat4j)
+		sls_sampler.SetUseSat4j();
 
 
 	sls_sampler.GenerateTestCaseSet();

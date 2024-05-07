@@ -98,4 +98,11 @@ Here, again, the lines in the form of `number1: number2` represent the progress 
 
 ## Testing Benchmarks for Evaluating *LS-Sampling-Plus*
 
-- The directories entitled `cnf_benchmarks/`, `cnfForRQ7` and `cnfForRQ8` include all testing benchmarks.
+- The directories entitled `cnf_benchmarks/`, `cnfForRQ7`, `cnfForRQ8` and `cnfForRQ10` include all testing benchmarks.
+- The file entitled 'benchmark.csv' shows the numbers of variables and clauses for our primary benchmark set of 123 binary benchmarks.
+
+
+## Experimental Results
+
+- The file entitled 'Appendix.pdf' shows the results of the significance test we conducted, as well as the box plots and scatter plots drawn based on the experimental results.
+

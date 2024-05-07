@@ -61,6 +61,32 @@ void SamplingSolver::set_prob(const vector<pair<int, int> >& sample_prob){
     }
 }
 
+void SamplingSolver::set_prob2(string cnf_path,const vector<pair<int, int> >& sample_prob,int seed, int size){
+    Minisat::Solver* sv = (Minisat::Solver*)internal_solver; 
+    int pos = cnf_path.find_last_of('/');
+    string cnf_instance_name_ = cnf_path.substr(pos + 1);
+    ofstream ouf;
+    ouf.open("sat4j/"+cnf_instance_name_+".txt");
+    for (int i = 0; i < size; i++){
+        string prob = ""; 
+        if (!sample_prob.empty()){
+            for (int i = 0; i < sv->nVars(); ++i){
+                int l0 = sample_prob[i].first, l1 = sample_prob[i].second;
+                if (!l0 && !l1) l0 = l1 = 1;
+                int t = gen() % (l0 + l1);
+                if (t < l0){
+                    prob = prob+"0";
+                } else {
+                    prob = prob+"1";
+                }
+            }
+        }
+        ouf << prob << std::endl;
+    }
+    string cmd = "java -jar sat4j/Probrsat4j4.jar "+cnf_path+" " +to_string(seed)+" "+to_string(size)+" " +"sat4j/"+cnf_instance_name_+".txt"+">/dev/null 2>&1";
+    system(cmd.c_str());
+}
+
 void SamplingSolver::get_solution(vector<int>& tc){
     Minisat::Solver* sv = (Minisat::Solver*)internal_solver; 
 
@@ -84,6 +110,26 @@ void SamplingSolver::get_solution(vector<int>& tc){
             else tc.emplace_back(-1);
         }
     }
+}
+
+void SamplingSolver::get_solution2(string cnf_path, vector<vector<int> >& tc, int seed, int size){
+    Minisat::Solver* sv = (Minisat::Solver*)internal_solver; 
+
+    int pos = cnf_path.find_last_of('/');
+    string cnf_instance_name_ = cnf_path.substr(pos + 1);
+    string s;
+    ifstream inf;
+    inf.open(cnf_instance_name_+"/Products."+to_string(seed));
+    for(int j = 0; j < size; j++){
+        for(int i = 0; i < sv->nVars(); i++){
+            tc[j].clear();
+            getline(inf,s,';');
+            if(atoi(s.c_str())>0) tc[j].emplace_back(1);
+            else if(atoi(s.c_str())<0) tc[j].emplace_back(0);
+            else tc[j].emplace_back(-1);
+        }
+    }
+    inf.close();
 }
 
 vector<int> SamplingSolver::get_solution(){
