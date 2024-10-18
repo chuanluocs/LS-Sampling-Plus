@@ -7,6 +7,12 @@
 - Qiyuan Zhao (<zqy1018@hotmail.com>)
 - Binqi Sun (<binqi.sun@tum.de>)
 
+## How to Clone this Repository
+
+```
+git clone --recursive https://github.com/chuanluocs/LS-Sampling-Plus.git
+```
+
 ## How to Build *LS-Sampling-Plus*
 
 ```
