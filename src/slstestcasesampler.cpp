@@ -51,7 +51,7 @@ void SLSTestcaseSampler::SetDefaultPara()
 
     p_get_gain = &SLSTestcaseSampler::get_gain_2_wise;
 
-    flag_fix_t_wise_optimize_ = false;
+    flag_fix_t_wise_optimize_ = true;
     sample_cnt_ = 1000000;
 
     parallel_num = 1;
